@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 export function LoadingScreen({ text = "جارٍ تحميل البيانات..." }: { text?: string }) {
   return (
@@ -26,23 +27,43 @@ export function AuthRequiredScreen() {
   );
 }
 
-export function ErrorScreen({ message, onRetry }: { message?: string; onRetry?: () => void }) {
+export function ErrorScreen({
+  message,
+  details,
+  onRetry,
+  onLogout,
+  children,
+}: {
+  message?: string;
+  details?: string;
+  onRetry?: () => void;
+  onLogout?: () => void;
+  children?: ReactNode;
+}) {
   return (
     <main className="grid min-h-screen place-items-center px-4">
       <section className="card max-w-lg p-8 text-center">
         <div className="text-5xl">⚠️</div>
         <h1 className="mt-3 text-2xl font-black text-ramadan-deep">{message ?? "تعذر تحميل البيانات"}</h1>
-        <p className="mt-2 font-bold text-slate-500">
-          تأكد من اتصال قاعدة البيانات (متغير <code>DATABASE_URL</code> يُضاف تلقائيًا عند ربط Neon من لوحة Vercel).
+        {details && <p className="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{details}</p>}
+        <p className="mt-3 text-sm font-bold text-slate-500">
+          تأكد من ضبط متغير <code>NEON_DATABASE_URL</code> أو <code>DATABASE_URL</code> في إعدادات Vercel (يُضاف تلقائيًا
+          عند ربط Neon من Storage → Neon) ثم أعد المحاولة.
         </p>
+        {children && <div className="mt-4 flex justify-center">{children}</div>}
         <div className="mt-5 flex flex-wrap justify-center gap-3">
           {onRetry && (
             <button type="button" className="btn-primary" onClick={onRetry}>
               🔄 إعادة المحاولة
             </button>
           )}
-          <Link href="/teacher" className="btn-ghost">
-            لوحة المعلم
+          {onLogout && (
+            <button type="button" className="btn-ghost" onClick={onLogout}>
+              🚪 تسجيل الخروج
+            </button>
+          )}
+          <Link href="/" className="btn-ghost">
+            🏠 صفحة الطالب
           </Link>
         </div>
       </section>

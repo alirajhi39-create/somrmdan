@@ -5,6 +5,7 @@ import { useState } from "react";
 import { formatDateTime, formatDuration } from "@/lib/dates";
 import { GRADE, LESSON_NUMBER, LESSON_TITLE_PLAIN, SCHOOL_NAME, TOTAL_STATIONS, gradeLabel, starsFor } from "@/lib/lesson-data";
 import type { AttemptView, Overview, StudentView } from "@/lib/teacher-types";
+import DbStatusBadge from "./DbStatusBadge";
 import DeleteStudentButton from "./DeleteStudentButton";
 import { teacherFetch } from "./teacher-client";
 
@@ -129,6 +130,9 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
             <p className="mt-1 text-sm font-bold text-emerald-100">
               {SCHOOL_NAME} • {GRADE} • الدرس {LESSON_NUMBER}: {LESSON_TITLE_PLAIN}
             </p>
+            <div className="mt-2">
+              <DbStatusBadge light />
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/" className="rounded-xl border-2 border-white/40 px-4 py-2 font-black hover:bg-white/10">

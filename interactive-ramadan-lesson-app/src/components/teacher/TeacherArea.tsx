@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { Overview } from "@/lib/teacher-types";
 import Dashboard from "./Dashboard";
+import DbStatusBadge from "./DbStatusBadge";
 import LoginForm from "./LoginForm";
 import { ErrorScreen, LoadingScreen } from "./Screens";
 import { UnauthorizedError, clearToken, getStoredToken, storeToken, teacherFetch } from "./teacher-client";
@@ -15,6 +16,7 @@ export default function TeacherArea() {
   const classroom = searchParams.get("classroom") ?? "";
   const [status, setStatus] = useState<Status>("init");
   const [data, setData] = useState<Overview | null>(null);
+  const [errorDetails, setErrorDetails] = useState("");
 
   const load = useCallback(async () => {
     if (!getStoredToken()) {
@@ -24,9 +26,12 @@ export default function TeacherArea() {
     setStatus((s) => (s === "ready" ? "ready" : "loading"));
     try {
       const res = await teacherFetch(`/api/teacher/overview?classroom=${encodeURIComponent(classroom)}`);
-      if (!res.ok) throw new Error("failed");
-      const json = (await res.json()) as { ok: boolean; data: Overview };
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; data?: Overview; error?: string };
+      if (!res.ok || !json.ok || !json.data) {
+        throw new Error(json.error || `فشل الطلب (${res.status})`);
+      }
       setData(json.data);
+      setErrorDetails("");
       setStatus("ready");
     } catch (error) {
       if (error instanceof UnauthorizedError) {
@@ -35,6 +40,7 @@ export default function TeacherArea() {
         setStatus("login");
         return;
       }
+      setErrorDetails(error instanceof Error ? error.message : "خطأ غير معروف");
       setStatus("error");
     }
   }, [classroom]);
@@ -65,7 +71,18 @@ export default function TeacherArea() {
     );
   }
   if (status === "init" || (status === "loading" && !data)) return <LoadingScreen />;
-  if (status === "error" || !data) return <ErrorScreen onRetry={() => void load()} />;
+  if (status === "error" || !data) {
+    return (
+      <ErrorScreen
+        message="تم تسجيل الدخول، لكن تعذر تحميل بيانات الطلاب"
+        details={errorDetails}
+        onRetry={() => void load()}
+        onLogout={() => void logout()}
+      >
+        <DbStatusBadge />
+      </ErrorScreen>
+    );
+  }
 
   return <Dashboard data={data} refreshing={status === "loading"} onLogout={() => void logout()} onRefresh={() => void load()} />;
 }
