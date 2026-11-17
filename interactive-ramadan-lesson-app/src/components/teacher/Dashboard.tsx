@@ -8,6 +8,7 @@ import type { AttemptView, Overview, StudentView } from "@/lib/teacher-types";
 import DbStatusBadge from "./DbStatusBadge";
 import DeleteStudentButton from "./DeleteStudentButton";
 import SettingsPanel from "./SettingsPanel";
+import SoundLibraryPanel from "./SoundLibraryPanel";
 import StartCompetitionButton from "./StartCompetitionButton";
 import StrategiesPanel from "./StrategiesPanel";
 import { teacherFetch } from "./teacher-client";
@@ -149,6 +150,9 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
             >
               {refreshing ? "⏳ تحديث..." : "🔄 تحديث"}
             </button>
+            <Link href="/teacher/quiz" className="rounded-xl bg-rose-500 px-4 py-2 font-black text-white shadow hover:bg-rose-600">
+              👥 مسابقة المجموعتين (السبورة)
+            </Link>
             <StartCompetitionButton classroom={data.classroom} />
             <Link
               href={`/teacher/report${query}`}
@@ -206,6 +210,7 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
         </section>
 
         <SettingsPanel />
+        <SoundLibraryPanel />
         <StrategiesPanel />
 
         {/* الإحصاءات */}

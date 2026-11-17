@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { LearnBlock, LearnStation as LearnStationData } from "@/lib/lesson-data";
+import { narrationSlotKey } from "@/lib/sound-slots";
 import type { ActivityProps } from "./types";
 
 function DayTimeline() {
@@ -104,8 +105,8 @@ export default function LearnStation({ station, sound, onComplete }: ActivityPro
         <LearnBlockView key={i} block={block} />
       ))}
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-        {sound.ttsEnabled && (
-          <button type="button" className="btn-ghost" onClick={() => sound.speak(station.tts)}>
+        {sound.canListen(narrationSlotKey(station.key)) && (
+          <button type="button" className="btn-ghost" onClick={() => sound.speak(station.tts, narrationSlotKey(station.key))}>
             🔊 اسْتَمِعْ
           </button>
         )}

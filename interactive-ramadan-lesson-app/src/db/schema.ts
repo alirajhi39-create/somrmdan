@@ -1,5 +1,6 @@
 import {
   boolean,
+  customType,
   index,
   integer,
   jsonb,
@@ -9,6 +10,22 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
+
+/** مكتبة الأصوات المخصصة التي يرفعها المعلم (تلاوات، مؤثرات) */
+export const sounds = pgTable("sounds", {
+  key: text("key").primaryKey(),
+  filename: text("filename").notNull(),
+  mime: text("mime").notNull(),
+  size: integer("size").notNull().default(0),
+  data: bytea("data").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 /** الطلاب: يُعرَّف الطالب باسمه وشعبته */
 export const students = pgTable(

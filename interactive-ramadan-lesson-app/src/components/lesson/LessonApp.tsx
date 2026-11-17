@@ -18,6 +18,7 @@ import {
   starsFor,
 } from "@/lib/lesson-data";
 import { DEFAULT_SETTINGS, sanitizeSettings, type AppSettings } from "@/lib/settings-types";
+import { soundUrl, type SoundInfo } from "@/lib/sound-slots";
 import Certificate from "./Certificate";
 import Header from "./Header";
 import HeroIllustration from "./HeroIllustration";
@@ -92,8 +93,23 @@ function Confetti() {
 
 export default function LessonApp({ dbReady }: { dbReady: boolean }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-  const sound = useSound(settings.sound);
+  const [customSounds, setCustomSounds] = useState<Record<string, string>>({});
+  const sound = useSound(settings.sound, customSounds);
   const [phase, setPhase] = useState<Phase>("hero");
+
+  // أصوات المعلم المخصصة (تلاوات/مؤثرات) إن وُجدت
+  useEffect(() => {
+    fetch("/api/sounds", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j: { sounds?: SoundInfo[] }) => {
+        const map: Record<string, string> = {};
+        for (const s of j.sounds ?? []) map[s.key] = soundUrl(s);
+        setCustomSounds(map);
+      })
+      .catch(() => {
+        /* نستخدم الأصوات الافتراضية */
+      });
+  }, []);
 
   // إعدادات الصوت التي يضبطها المعلم من لوحته
   useEffect(() => {
@@ -396,9 +412,6 @@ function HeroSection({
                   ▶️ متابعة رحلة {savedName} (المحطة {savedStation})
                 </button>
               )}
-              <Link href="/play" className="btn-ghost">
-                🏆 مسابقة الفصل المباشرة
-              </Link>
             </div>
           </div>
           <div className="relative mx-auto w-full max-w-md">
@@ -472,7 +485,7 @@ function StartForm({
   return (
     <section className="card mx-auto max-w-xl animate-pop p-6 sm:p-8">
       <div className="text-center">
-        <div className="text-6xl">🧒👧</div>
+        <div className="text-6xl">👦</div>
         <h2 className="mt-2 text-3xl font-black text-ramadan-deep">مَنْ بَطَلُنَا الْيَوْمَ؟</h2>
         <p className="mt-1 font-bold text-slate-500">اكتب اسمك واختر فصلك لنبدأ الرحلة ونحفظ نتيجتك للمعلم</p>
       </div>

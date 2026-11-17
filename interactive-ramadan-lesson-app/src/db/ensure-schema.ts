@@ -79,6 +79,14 @@ const STATEMENTS = [
     "answered_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
   sql`CREATE UNIQUE INDEX IF NOT EXISTS "competition_answers_unique_idx" ON "competition_answers" ("competition_id", "player_id", "question_index")`,
+  sql`CREATE TABLE IF NOT EXISTS "sounds" (
+    "key" text PRIMARY KEY NOT NULL,
+    "filename" text NOT NULL,
+    "mime" text NOT NULL,
+    "size" integer DEFAULT 0 NOT NULL,
+    "data" bytea NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
 ];
 
 const globalForSchema = globalThis as typeof globalThis & {

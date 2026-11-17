@@ -32,7 +32,7 @@ export default function StartCompetitionButton({ classroom }: { classroom: strin
       disabled={busy}
       className="rounded-xl bg-rose-500 px-4 py-2 font-black text-white shadow hover:bg-rose-600 disabled:opacity-60"
     >
-      {busy ? "⏳ جارٍ التجهيز..." : "🏆 مسابقة مباشرة"}
+      {busy ? "⏳ جارٍ التجهيز..." : "📱 مسابقة بالأجهزة"}
     </button>
   );
 }

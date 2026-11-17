@@ -5,15 +5,18 @@ export interface StationOutcome {
 
 export interface SoundApi {
   muted: boolean;
-  /** هل القراءة الصوتية متاحة (حسب إعدادات المعلم وحالة الكتم)؟ */
+  /** هل القراءة الآلية متاحة (حسب إعدادات المعلم وحالة الكتم)؟ */
   ttsEnabled: boolean;
   effectsEnabled: boolean;
+  /** هل يمكن إظهار زر «استمع» لهذه الخانة (تسجيل معلم أو قراءة آلية)؟ */
+  canListen: (slotKey?: string) => boolean;
   toggleMute: () => void;
   playCorrect: () => void;
   playWrong: () => void;
   playComplete: () => void;
   playClick: () => void;
-  speak: (text: string) => void;
+  /** قراءة نص؛ إن وُجد تسجيل للمعلم في slotKey يُشغَّل بدل القراءة الآلية */
+  speak: (text: string, slotKey?: string) => void;
   stopSpeaking: () => void;
 }
 

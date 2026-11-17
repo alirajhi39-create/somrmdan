@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { McqStation as McqStationData } from "@/lib/lesson-data";
 import { pointsForTries, randomEncourage, randomPraise, shuffle } from "@/lib/lesson-data";
+import { narrationSlotKey } from "@/lib/sound-slots";
 import { Feedback } from "./Feedback";
 import type { ActivityProps, FeedbackState } from "./types";
 
@@ -65,8 +66,12 @@ export default function McqStation({ station, sound, onComplete }: ActivityProps
       {station.intro && qIndex === 0 && (
         <div className="rounded-3xl border-2 border-ramadan-gold/50 bg-ramadan-sand p-5">
           <p className="text-xl font-bold leading-loose text-ramadan-deep">{station.intro}</p>
-          {sound.ttsEnabled && (
-            <button type="button" className="btn-ghost mt-3 px-4 py-2 text-sm" onClick={() => sound.speak(station.intro ?? "")}>
+          {sound.canListen(narrationSlotKey(station.key)) && (
+            <button
+              type="button"
+              className="btn-ghost mt-3 px-4 py-2 text-sm"
+              onClick={() => sound.speak(station.intro ?? "", narrationSlotKey(station.key))}
+            >
               🔊 اسْتَمِعْ
             </button>
           )}
