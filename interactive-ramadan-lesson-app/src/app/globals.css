@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+@theme {
+  --font-cairo: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-amiri: "Amiri", "Scheherazade New", "Traditional Arabic", "Times New Roman", serif;
+
+  --color-ramadan-green: #0f766e;
+  --color-ramadan-deep: #0b4f3f;
+  --color-ramadan-mint: #e6f4f1;
+  --color-ramadan-gold: #d4a017;
+  --color-ramadan-gold-dark: #b8860b;
+  --color-ramadan-cream: #fffaf0;
+  --color-ramadan-sand: #fdf3dc;
+
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-pop: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-shake: shake 0.45s ease-in-out;
+  --animate-confetti: confetti 3.2s linear infinite;
+  --animate-pulse-soft: pulse-soft 1.6s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+  @keyframes pop {
+    0% {
+      transform: scale(0.92);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-8px);
+    }
+    40% {
+      transform: translateX(8px);
+    }
+    60% {
+      transform: translateX(-6px);
+    }
+    80% {
+      transform: translateX(6px);
+    }
+  }
+  @keyframes confetti {
+    0% {
+      transform: translateY(-10vh) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0.2;
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.55);
+    }
+    50% {
+      box-shadow: 0 0 0 12px rgba(212, 160, 23, 0);
+    }
+  }
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(212, 160, 23, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 20%, rgba(15, 118, 110, 0.08), transparent 45%);
+}
+
+.pattern-bg {
+  background-color: #0b4f3f;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.07) 2px, transparent 2.5px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.07) 2px, transparent 2.5px);
+  background-size: 28px 28px;
+}
+
+.card {
+  @apply rounded-3xl border border-emerald-100 bg-white shadow-[0_18px_50px_rgba(11,79,63,0.10)];
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-ramadan-green px-6 py-3 text-lg font-extrabold text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:bg-ramadan-deep focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0;
+}
+
+.btn-gold {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-ramadan-gold px-6 py-3 text-lg font-extrabold text-ramadan-deep shadow-lg shadow-amber-900/20 transition hover:-translate-y-0.5 hover:bg-ramadan-gold-dark hover:text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-white px-5 py-2.5 font-bold text-ramadan-deep transition hover:border-ramadan-green hover:bg-ramadan-mint focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white px-3 py-1 text-sm font-bold text-ramadan-deep;
+}
+
+.quran-text {
+  font-family: var(--font-amiri);
+  line-height: 2.1;
+}
+
+/* إخفاء العناصر غير المطلوبة عند الطباعة */
+@media print {
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+  .card {
+    box-shadow: none !important;
+  }
+}
