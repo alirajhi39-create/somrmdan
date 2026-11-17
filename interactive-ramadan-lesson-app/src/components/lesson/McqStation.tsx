@@ -65,9 +65,11 @@ export default function McqStation({ station, sound, onComplete }: ActivityProps
       {station.intro && qIndex === 0 && (
         <div className="rounded-3xl border-2 border-ramadan-gold/50 bg-ramadan-sand p-5">
           <p className="text-xl font-bold leading-loose text-ramadan-deep">{station.intro}</p>
-          <button type="button" className="btn-ghost mt-3 px-4 py-2 text-sm" onClick={() => sound.speak(station.intro ?? "")}>
-            🔊 اسْتَمِعْ
-          </button>
+          {sound.ttsEnabled && (
+            <button type="button" className="btn-ghost mt-3 px-4 py-2 text-sm" onClick={() => sound.speak(station.intro ?? "")}>
+              🔊 اسْتَمِعْ
+            </button>
+          )}
         </div>
       )}
 

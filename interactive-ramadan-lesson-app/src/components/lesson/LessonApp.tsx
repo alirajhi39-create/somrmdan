@@ -9,6 +9,7 @@ import {
   LESSON_TITLE,
   LESSON_TOPICS,
   SCHOOL_NAME,
+  SECTIONS,
   STATIONS,
   TOTAL_MAX_POINTS,
   TOTAL_STATIONS,
@@ -16,6 +17,7 @@ import {
   percentOf,
   starsFor,
 } from "@/lib/lesson-data";
+import { DEFAULT_SETTINGS, sanitizeSettings, type AppSettings } from "@/lib/settings-types";
 import Certificate from "./Certificate";
 import Header from "./Header";
 import HeroIllustration from "./HeroIllustration";
@@ -25,7 +27,6 @@ import type { StationOutcome } from "./types";
 import { useSound } from "./useSound";
 
 const STORAGE_KEY = "alaroos-ramadan-progress-v1";
-const CLASSROOMS = ["٣/١", "٣/٢", "٣/٣", "٣/٤", "٣/٥"];
 const CONFETTI_COLORS = ["#d4a017", "#0f766e", "#f59e0b", "#10b981", "#f43f5e", "#3b82f6"];
 
 interface StationRecord extends StationOutcome {
@@ -90,8 +91,21 @@ function Confetti() {
 }
 
 export default function LessonApp({ dbReady }: { dbReady: boolean }) {
-  const sound = useSound();
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const sound = useSound(settings.sound);
   const [phase, setPhase] = useState<Phase>("hero");
+
+  // إعدادات الصوت التي يضبطها المعلم من لوحته
+  useEffect(() => {
+    fetch("/api/settings", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j: { settings?: unknown }) => {
+        if (j?.settings) setSettings(sanitizeSettings(j.settings));
+      })
+      .catch(() => {
+        /* نستخدم الإعدادات الافتراضية */
+      });
+  }, []);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [saved, setSaved] = useState<Progress | null>(null);
   const [starting, setStarting] = useState(false);
@@ -382,6 +396,9 @@ function HeroSection({
                   ▶️ متابعة رحلة {savedName} (المحطة {savedStation})
                 </button>
               )}
+              <Link href="/play" className="btn-ghost">
+                🏆 مسابقة الفصل المباشرة
+              </Link>
             </div>
           </div>
           <div className="relative mx-auto w-full max-w-md">
@@ -438,8 +455,7 @@ function StartForm({
   onSubmit: (name: string, classroom: string) => void;
 }) {
   const [name, setName] = useState("");
-  const [classroom, setClassroom] = useState(CLASSROOMS[0]);
-  const [other, setOther] = useState("");
+  const [classroom, setClassroom] = useState(SECTIONS[0]);
   const [error, setError] = useState("");
 
   function submit(e: FormEvent) {
@@ -449,9 +465,8 @@ function StartForm({
       setError("اكتب اسمك الكامل من فضلك (حرفان على الأقل)");
       return;
     }
-    const cls = classroom === "other" ? other.trim() : classroom;
     setError("");
-    onSubmit(cleanName, cls);
+    onSubmit(cleanName, classroom);
   }
 
   return (
@@ -484,32 +499,23 @@ function StartForm({
           />
         </div>
         <div>
-          <p className="mb-2 font-black text-ramadan-deep">🏫 الفصل</p>
-          <div className="flex flex-wrap gap-2">
-            {[...CLASSROOMS, "other"].map((c) => (
+          <p className="mb-2 font-black text-ramadan-deep">🏫 الشعبة</p>
+          <div className="grid grid-cols-2 gap-3">
+            {SECTIONS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setClassroom(c)}
-                className={`rounded-xl border-2 px-4 py-2 font-black transition ${
+                className={`rounded-2xl border-2 px-4 py-3 text-xl font-black transition ${
                   classroom === c
-                    ? "border-ramadan-green bg-ramadan-green text-white"
+                    ? "border-ramadan-green bg-ramadan-green text-white shadow-lg"
                     : "border-emerald-200 bg-white text-ramadan-deep hover:bg-ramadan-mint"
                 }`}
               >
-                {c === "other" ? "أخرى" : c}
+                {c === SECTIONS[0] ? "🅰️" : "🅱️"} {c}
               </button>
             ))}
           </div>
-          {classroom === "other" && (
-            <input
-              value={other}
-              onChange={(e) => setOther(e.target.value)}
-              placeholder="اكتب اسم الفصل"
-              maxLength={20}
-              className="mt-3 w-full rounded-2xl border-2 border-emerald-200 px-4 py-2 text-lg font-bold outline-none focus:border-ramadan-green"
-            />
-          )}
         </div>
 
         {error && <p className="rounded-xl bg-rose-50 px-4 py-2 font-bold text-rose-700">{error}</p>}

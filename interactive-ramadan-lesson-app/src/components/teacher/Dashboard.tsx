@@ -7,6 +7,9 @@ import { GRADE, LESSON_NUMBER, LESSON_TITLE_PLAIN, SCHOOL_NAME, TOTAL_STATIONS, 
 import type { AttemptView, Overview, StudentView } from "@/lib/teacher-types";
 import DbStatusBadge from "./DbStatusBadge";
 import DeleteStudentButton from "./DeleteStudentButton";
+import SettingsPanel from "./SettingsPanel";
+import StartCompetitionButton from "./StartCompetitionButton";
+import StrategiesPanel from "./StrategiesPanel";
 import { teacherFetch } from "./teacher-client";
 
 function statusOf(student: StudentView): { label: string; className: string } {
@@ -146,11 +149,21 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
             >
               {refreshing ? "⏳ تحديث..." : "🔄 تحديث"}
             </button>
+            <StartCompetitionButton classroom={data.classroom} />
             <Link
               href={`/teacher/report${query}`}
               className="rounded-xl bg-ramadan-gold px-4 py-2 font-black text-ramadan-deep hover:bg-amber-400"
             >
-              🖨️ تقرير الفصل PDF
+              🖨️ تقرير الشعبة PDF
+            </Link>
+            <Link
+              href={`/teacher/report/all${query}`}
+              className="rounded-xl bg-ramadan-gold px-4 py-2 font-black text-ramadan-deep hover:bg-amber-400"
+            >
+              🖨️ تقارير جميع الطلاب
+            </Link>
+            <Link href="/teacher/plan" className="rounded-xl bg-white px-4 py-2 font-black text-ramadan-deep hover:bg-emerald-50">
+              📚 خطة الدرس
             </Link>
             <ExportCsvButton classroom={data.classroom} />
             <button
@@ -167,7 +180,7 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
         {/* تصفية حسب الفصل */}
         <section className="card flex flex-wrap items-center gap-2 p-4">
-          <span className="font-black text-ramadan-deep">🏫 الفصل:</span>
+          <span className="font-black text-ramadan-deep">🏫 الشعبة:</span>
           <Link
             href="/teacher"
             className={`rounded-xl border-2 px-3 py-1.5 text-sm font-black ${
@@ -189,8 +202,11 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
               {c}
             </Link>
           ))}
-          {data.classrooms.length === 0 && <span className="text-sm font-bold text-slate-400">لا توجد فصول بعد</span>}
+          {data.classrooms.length === 0 && <span className="text-sm font-bold text-slate-400">لا توجد شعب بعد</span>}
         </section>
+
+        <SettingsPanel />
+        <StrategiesPanel />
 
         {/* الإحصاءات */}
         <section className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">

@@ -40,6 +40,45 @@ const STATEMENTS = [
     "answered_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
   sql`CREATE UNIQUE INDEX IF NOT EXISTS "station_results_attempt_station_idx" ON "station_results" ("attempt_id", "station_index")`,
+  sql`CREATE TABLE IF NOT EXISTS "settings" (
+    "key" text PRIMARY KEY NOT NULL,
+    "value" jsonb NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
+  sql`CREATE TABLE IF NOT EXISTS "competitions" (
+    "id" serial PRIMARY KEY NOT NULL,
+    "code" text NOT NULL UNIQUE,
+    "classroom" text DEFAULT '' NOT NULL,
+    "status" text DEFAULT 'lobby' NOT NULL,
+    "current_index" integer DEFAULT -1 NOT NULL,
+    "question_started_at" timestamp with time zone,
+    "question_seconds" integer DEFAULT 20 NOT NULL,
+    "seed" integer DEFAULT 0 NOT NULL,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "finished_at" timestamp with time zone
+  )`,
+  sql`CREATE TABLE IF NOT EXISTS "competition_players" (
+    "id" serial PRIMARY KEY NOT NULL,
+    "competition_id" integer NOT NULL REFERENCES "competitions"("id") ON DELETE CASCADE,
+    "name" text NOT NULL,
+    "team" text DEFAULT '' NOT NULL,
+    "score" integer DEFAULT 0 NOT NULL,
+    "joined_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "last_seen" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
+  sql`CREATE UNIQUE INDEX IF NOT EXISTS "competition_players_unique_idx" ON "competition_players" ("competition_id", "name")`,
+  sql`CREATE TABLE IF NOT EXISTS "competition_answers" (
+    "id" serial PRIMARY KEY NOT NULL,
+    "competition_id" integer NOT NULL REFERENCES "competitions"("id") ON DELETE CASCADE,
+    "player_id" integer NOT NULL REFERENCES "competition_players"("id") ON DELETE CASCADE,
+    "question_index" integer NOT NULL,
+    "option_index" integer NOT NULL,
+    "correct" boolean DEFAULT false NOT NULL,
+    "time_ms" integer DEFAULT 0 NOT NULL,
+    "points" integer DEFAULT 0 NOT NULL,
+    "answered_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
+  sql`CREATE UNIQUE INDEX IF NOT EXISTS "competition_answers_unique_idx" ON "competition_answers" ("competition_id", "player_id", "question_index")`,
 ];
 
 const globalForSchema = globalThis as typeof globalThis & {
@@ -56,7 +95,6 @@ async function runWithRetry(attempts = 3): Promise<void> {
       return;
     } catch (error) {
       lastError = error;
-      // انتظار قصير قبل إعادة المحاولة (الإقلاع البارد / انقطاع لحظي)
       await new Promise((r) => setTimeout(r, 800 * (i + 1)));
     }
   }
@@ -66,7 +104,6 @@ async function runWithRetry(attempts = 3): Promise<void> {
 export function ensureSchema(): Promise<void> {
   if (!globalForSchema.__ramadanSchemaReady) {
     globalForSchema.__ramadanSchemaReady = runWithRetry().catch((error) => {
-      // السماح بإعادة المحاولة في الطلب التالي
       globalForSchema.__ramadanSchemaReady = undefined;
       throw error;
     });

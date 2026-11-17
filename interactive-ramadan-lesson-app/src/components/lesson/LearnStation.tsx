@@ -104,9 +104,11 @@ export default function LearnStation({ station, sound, onComplete }: ActivityPro
         <LearnBlockView key={i} block={block} />
       ))}
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-        <button type="button" className="btn-ghost" onClick={() => sound.speak(station.tts)}>
-          🔊 اسْتَمِعْ
-        </button>
+        {sound.ttsEnabled && (
+          <button type="button" className="btn-ghost" onClick={() => sound.speak(station.tts)}>
+            🔊 اسْتَمِعْ
+          </button>
+        )}
         <button type="button" className="btn-primary" onClick={understood} disabled={done}>
           {done ? "✅ أَحْسَنْتَ!" : `فَهِمْتُ! ✅ (+${station.maxPoints} نِقَاط)`}
         </button>

@@ -5,6 +5,9 @@ export interface StationOutcome {
 
 export interface SoundApi {
   muted: boolean;
+  /** هل القراءة الصوتية متاحة (حسب إعدادات المعلم وحالة الكتم)؟ */
+  ttsEnabled: boolean;
+  effectsEnabled: boolean;
   toggleMute: () => void;
   playCorrect: () => void;
   playWrong: () => void;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_SETTINGS, type SoundSettings } from "@/lib/settings-types";
 import type { SoundApi } from "./types";
 
 interface Note {
@@ -11,10 +12,19 @@ interface Note {
   gain?: number;
 }
 
-export function useSound(): SoundApi {
+/**
+ * مؤثرات صوتية (Web Audio) + قراءة صوتية (Speech Synthesis)
+ * تخضع لإعدادات المعلم: تفعيل المؤثرات/القراءة، مستوى الصوت، سرعة القراءة.
+ */
+export function useSound(config?: SoundSettings): SoundApi {
   const ctxRef = useRef<AudioContext | null>(null);
   const mutedRef = useRef(false);
+  const cfgRef = useRef<SoundSettings>(config ?? DEFAULT_SETTINGS.sound);
   const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    cfgRef.current = config ?? DEFAULT_SETTINGS.sound;
+  }, [config]);
 
   const getCtx = useCallback((): AudioContext | null => {
     if (typeof window === "undefined") return null;
@@ -31,7 +41,8 @@ export function useSound(): SoundApi {
 
   const play = useCallback(
     (notes: Note[]) => {
-      if (mutedRef.current) return;
+      const cfg = cfgRef.current;
+      if (mutedRef.current || !cfg.effects || cfg.volume <= 0) return;
       try {
         const ctx = getCtx();
         if (!ctx) return;
@@ -42,7 +53,7 @@ export function useSound(): SoundApi {
           osc.type = n.type ?? "triangle";
           osc.frequency.value = n.freq;
           const start = now + n.at;
-          const peak = n.gain ?? 0.16;
+          const peak = Math.max(0.0005, (n.gain ?? 0.16) * cfg.volume);
           gain.gain.setValueAtTime(0.0001, start);
           gain.gain.exponentialRampToValueAtTime(peak, start + 0.02);
           gain.gain.exponentialRampToValueAtTime(0.0001, start + n.dur);
@@ -52,7 +63,7 @@ export function useSound(): SoundApi {
           osc.stop(start + n.dur + 0.05);
         }
       } catch {
-        /* الصوت غير متاح — نتجاهل بصمت */
+        /* الصوت غير متاح */
       }
     },
     [getCtx],
@@ -99,12 +110,14 @@ export function useSound(): SoundApi {
   }, []);
 
   const speak = useCallback((text: string) => {
-    if (mutedRef.current || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const cfg = cfgRef.current;
+    if (mutedRef.current || !cfg.tts || typeof window === "undefined" || !("speechSynthesis" in window)) return;
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "ar-SA";
-      utterance.rate = 0.88;
+      utterance.rate = cfg.rate;
+      utterance.volume = Math.max(0, Math.min(1, cfg.volume));
       const voice = window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith("ar"));
       if (voice) utterance.voice = voice;
       window.speechSynthesis.speak(utterance);
@@ -119,8 +132,11 @@ export function useSound(): SoundApi {
     if (mutedRef.current) stopSpeaking();
   }, [stopSpeaking]);
 
+  const ttsEnabled = (config?.tts ?? true) && !muted;
+  const effectsEnabled = (config?.effects ?? true) && !muted;
+
   return useMemo(
-    () => ({ muted, toggleMute, playCorrect, playWrong, playComplete, playClick, speak, stopSpeaking }),
-    [muted, toggleMute, playCorrect, playWrong, playComplete, playClick, speak, stopSpeaking],
+    () => ({ muted, ttsEnabled, effectsEnabled, toggleMute, playCorrect, playWrong, playComplete, playClick, speak, stopSpeaking }),
+    [muted, ttsEnabled, effectsEnabled, toggleMute, playCorrect, playWrong, playComplete, playClick, speak, stopSpeaking],
   );
 }
