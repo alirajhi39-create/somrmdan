@@ -7,6 +7,7 @@ import { GRADE, LESSON_NUMBER, LESSON_TITLE_PLAIN, SCHOOL_NAME, TOTAL_STATIONS, 
 import type { AttemptView, Overview, StudentView } from "@/lib/teacher-types";
 import DbStatusBadge from "./DbStatusBadge";
 import DeleteStudentButton from "./DeleteStudentButton";
+import EditStudentButton from "./EditStudentButton";
 import SettingsPanel from "./SettingsPanel";
 import SoundLibraryPanel from "./SoundLibraryPanel";
 import StartCompetitionButton from "./StartCompetitionButton";
@@ -271,7 +272,7 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
         <section className="card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100 px-5 py-4">
             <h2 className="text-xl font-black text-ramadan-deep">🧒 الطلاب ({data.students.length})</h2>
-            <p className="text-sm font-bold text-slate-500">اضغط على «التفاصيل» لعرض نتائج كل محطة</p>
+            <p className="text-sm font-bold text-slate-500">«التفاصيل» لعرض نتائج كل محطة • «✏️ تعديل» لتصحيح الاسم أو الشعبة</p>
           </div>
 
           {data.students.length === 0 ? (
@@ -348,6 +349,7 @@ export default function Dashboard({ data, refreshing, onLogout, onRefresh }: Pro
                                 📄 تقرير PDF
                               </Link>
                             )}
+                            <EditStudentButton studentId={s.id} name={s.name} classroom={s.classroom} onSaved={onRefresh} />
                             <DeleteStudentButton studentId={s.id} name={s.name} onDeleted={onRefresh} />
                           </div>
                         </td>
